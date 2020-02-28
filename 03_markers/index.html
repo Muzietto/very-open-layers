@@ -10,49 +10,96 @@
     <link rel="stylesheet" href="style.css" type="text/css">
 
     <script src="./js/OpenLayers.js"></script>
+    <script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
     <script type="text/javascript">
         var map, layer;
 
         function init(){
             OpenLayers.ProxyHost="/proxy/?url=";
-            map = new OpenLayers.Map('map');
-            layer = new OpenLayers.Layer.WMS( "OpenLayers WMS",
-                "http://vmap0.tiles.osgeo.org/wms/vmap0", {layers: 'basic'} );
 
-            map.addLayer(layer);
-            map.setCenter(new OpenLayers.LonLat(0, 0), 0);
+            map = new OpenLayers.Map('map',{
+          		projection: new OpenLayers.Projection('EPSG:900913'),
+          		displayProjection: new OpenLayers.Projection('EPSG:4326'),
+              controls: [
+                // control mouse events
+          			new OpenLayers.Control.Navigation(), // http://dev.openlayers.org/docs/files/OpenLayers/Control/Navigation-js.html
+                // draw black horiz line with notches bottom left of page
+          			new OpenLayers.Control.ScaleLine({ // http://dev.openlayers.org/docs/files/OpenLayers/Control/ScaleLine-js.html
+                  topOutUnits : 'nmi',
+                  bottomOutUnits: 'km',
+                  topInUnits: 'nmi',
+                  bottomInUnits: 'km',
+                  maxWidth: '40'
+                }),
+                // allows the user interface to switch between BaseLayers and to show or hide Overlays.
+          			new OpenLayers.Control.LayerSwitcher(),
+                // mouse coordinates lat/lon bottom right of the map
+          			new OpenLayers.Control.MousePosition({
+                  prefix: '<a target="_blank" ' +
+                      'href="http://spatialreference.org/ref/epsg/4326/">' +
+                      'EPSG:4326</a> coordinates: '
+                }),
+                // By default it is displayed in the upper left corner of the map as 4 directional arrows above a vertical slider.
+          			new OpenLayers.Control.PanZoomBar()
+              ],
+            });
 
+            // Displays data from OGC Web Mapping Services.
+            // layer = new OpenLayers.Layer.WMS( "OpenLayers WMS",
+            //     "http://vmap0.tiles.osgeo.org/wms/vmap0", {layers: 'basic'} );
+            // map.addLayer(layer);
+
+            // defined by OpenStreetMap.js
+            layer_mapnik = new OpenLayers.Layer.OSM.Mapnik('Mapnik');
+            map.addLayer(layer_mapnik);
+
+            map.setCenter(new OpenLayers.LonLat(Lon2Merc(9.20961), Lat2Merc(39.19487)), 10);
+
+            // text boxes in crazy locations
             var newl = new OpenLayers.Layer.Text( "text", { location:"./textfile.txt"} );
             map.addLayer(newl);
 
-            var markers = new OpenLayers.Layer.Markers( "Markers" );
-            map.addLayer(markers);
+            var layer_markers = new OpenLayers.Layer.Markers( "Markers" );
+            map.addLayer(layer_markers);
 
             var size = new OpenLayers.Size(21,25);
             var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-            var icon = new OpenLayers.Icon('./js/img/marker.png', size, offset);
-            markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(0,0),icon));
+            var redIcon = new OpenLayers.Icon('./js/img/marker.png', size, offset);
+            var greenIcon = new OpenLayers.Icon('./js/img/marker-green.png', size, offset);
+            var position1 = new OpenLayers.LonLat(Lon2Merc(9.20961), Lat2Merc(39.19487));
+            var position2 = new OpenLayers.LonLat(Lon2Merc(9.07262), Lat2Merc(39.16227));
+            layer_markers.addMarker(new OpenLayers.Marker(position1, redIcon));
+            layer_markers.addMarker(new OpenLayers.Marker(position2, greenIcon));
 
-            var halfIcon = icon.clone();
-            markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(0,45),halfIcon));
+            var layer_pois = new OpenLayers.Layer.Vector(
+              'Häfen',
+              {
+                projection: new OpenLayers.Projection('EPSG:4326'),
+                visibility: true,
+                displayOutsideMaxExtent:true
+              });
+            map.addLayer(layer_pois);
 
-            marker = new OpenLayers.Marker(new OpenLayers.LonLat(90,10),icon.clone());
-            marker.setOpacity(0.2);
-            marker.events.register('mousedown', marker, function(evt) { alert(this.icon.url); OpenLayers.Event.stop(evt); });
-            markers.addMarker(marker);
             map.addControl(new OpenLayers.Control.LayerSwitcher());
-            map.zoomToMaxExtent();
+        }
 
-            halfIcon.setOpacity(0.5);
+        function Lon2Merc(lon) {
+        	return 20037508.34 * lon / 180;
+        }
+
+        function Lat2Merc(lat) {
+        	var PI = 3.14159265358979323846;
+        	lat = Math.log(Math.tan( (90 + lat) * PI / 360)) / (PI / 180);
+        	return 20037508.34 * lat / 180;
         }
     </script>
   </head>
-  <body onload="init()">
+  <body onload="init();">
     <h1 id="title">Markers Layer Example</h1>
     <h2>cfr. http://dev.openlayers.org/examples/markers.html</h2>
     <div id="tags">Marker, event, mousedown, popup, inco</div>
     <div id="shortdesc">Show markers layer with different markers</div>
-    <div id="map" class="smallmap"></div>
+    <div id="map" class="largemap"></div>
     <div id="docs">
         <p>This is an example of an OpenLayers.Layers.Markers layer that shows
         some examples of adding markers.  Also demonstrated is registering a

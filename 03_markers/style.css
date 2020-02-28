@@ -76,6 +76,11 @@ h6 {
 /**
  * Map Examples Specific
  */
+.largemap {
+    width: 1000px;
+    height: 600px;
+    border: 1px solid #ccc;
+}
 .smallmap {
     width: 512px;
     height: 256px;
