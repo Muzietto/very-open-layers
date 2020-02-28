@@ -63,7 +63,7 @@ function marcoAddMarker(layer, lon, lat, color) {
   var icon = new OpenLayers.Icon(iconUrl);
 
   try {
-    layer.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(lon, lat), icon));
+    layer.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(Lon2Merc(lon), Lat2Merc(lat)), icon));
   } catch (err) {
     console.log('provided layer is not an OpenLayers.Layer.Markers');
   }

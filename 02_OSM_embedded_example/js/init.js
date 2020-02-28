@@ -89,16 +89,8 @@ function drawmap() {
 	jumpTo(lon, lat, zoom);
 
   addMarker(markers, 9.20961, 39.19487, '<p>CIAO CIAO</p>');
-  //marcoAddMarker(markers, 9.07262, 39.16227, 'gold');
+  marcoAddMarker(markers, 9.07262, 39.16227, 'gold');
+	marcoAddMarker(markers, 9.11447, 39.21182, 'green');
 
-  // var markers = new OpenLayers.Layer.Markers( "Markers" );
-  // map.addLayer(markers);
-  //
-  // var size = new OpenLayers.Size(21,25);
-  // var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-  // var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png', size, offset);
-  // markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(0,0),icon));
-  // markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(0,0),icon.clone()));
-  // Update harbour layer
 	refreshHarbours();
 }
